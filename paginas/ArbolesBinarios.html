@@ -5,10 +5,10 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.12">
-<meta name="description" content="Revisaremos los temas de búsquedas y ordenamiento en Kotlin">
-<meta name="keywords" content="kotlin, search, búsqueda, sorting, ordenamiento">
+<meta name="description" content="Hablaremos de árboles binarios">
+<meta name="keywords" content="kotlin, binary trees, árboles binarios">
 <meta name="author" content="Luis Cobo">
-<title>Búsquedas</title>
+<title>Árboles Binarios</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -444,7 +444,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article toc2 toc-left">
 <div id="header">
-<h1>Búsquedas</h1>
+<h1>Árboles Binarios</h1>
 <div class="details">
 <span id="author" class="author">Luis Cobo</span><br>
 <span id="email" class="email">mailto:lacobo@universidadean.edu.co</span><br>
@@ -452,9 +452,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Tabla de Contenido</div>
 <ul class="sectlevel1">
-<li><a href="#_búsqueda_lineal_secuencial">Búsqueda Lineal (secuencial)</a></li>
-<li><a href="#_búsqueda_binaria">Búsqueda binaria</a></li>
-<li><a href="#_búsqueda_binaria_con_comparadores">Búsqueda binaria con comparadores</a></li>
+<li><a href="#_definición_y_conceptos_básicos_de_árboles_binarios">Definición y Conceptos Básicos de Árboles Binarios</a></li>
+<li><a href="#_recorrido_de_árboles_binarios">Recorrido de Árboles Binarios</a></li>
+<li><a href="#_reconstrucción_de_un_árbol_a_partir_de_sus_recorridos">Reconstrucción de un Árbol a partir de sus Recorridos</a></li>
 </ul>
 </div>
 </div>
@@ -462,209 +462,350 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>Siendo optimistas, un asistente podría perder tan sólo uno o dos minutos para encontrar el archivo de
-uno de los clientes de la compañía para la cual trabaja, esto, asumiendo que los archivos estén
-perfectamente ordenados y catalogados. Ahora, con un computador en su oficina, la búsqueda completa puede
-hacerse en tan sólo unos segundos y el asistente no tiene que encargarse de volver a buscar el lugar
-correcto para almacenar el archivo, de eso se encargan los programadores que desarrollan la aplicación de
-la cual el asistente toma ventaja. Este es tan sólo un ejemplo de la importancia de las operaciones de
-búsqueda en un computador, las cuales se realizan a todos los niveles y con infinidad de implementaciones
-distintas, de la cuales, a continuación presentamos algunas que son útiles en el caso de que la búsqueda
-se haga en una estructura de datos lineal.</p>
+<p>Muchas veces los seres humanos nos inspiramos en la naturaleza para resolver nuestros
+problemas. En el caso de las estructuras de datos, cuando debemos representar jerarquías o
+taxonomías y otro tipo de problemas un poco más complejos, nos es fácil pensar en ellas como
+estructuras arbóreas invertidas en las cuales el elemento de mayor jerarquía se considera como la
+raíz, los elementos de menor jerarquía ocupan los niveles inferiores dentro de un orden estipulado
+permitiendo un manejo de información adecuado del problema que deseamos modelar.</p>
 </div>
 <div class="paragraph">
-<p>La búsqueda de un elemento dentro de una lista es una de las operaciones más importantes en el
-procesamiento de la información, y permite la recuperación de datos previamente almacenados. El tipo de
-búsqueda se puede clasificar como interna o externa, según el lugar en el que esté almacenada la
-información (en memoria o en dispositivos externos). Todos los algoritmos de búsqueda tienen dos
-finalidades:</p>
+<p>Las estructuras de datos que hemos estudiado hasta ahora, son de naturaleza lineal o unidimensional.
+Ya sabemos que en las estructuras de datos lineales, como las listas o las pilas o las colas, existen
+exactamente un elemento previo y un elemento siguiente (excepto para el primero o tope y el último o
+fondo). En las estructuras no lineales, como los árboles que vamos a empezar a estudiar, este tipo de
+secuencialidad no existe.</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>Determinar si el elemento buscado se encuentra en el conjunto en el que se busca.</p>
+<p>En los árboles existe una estructura jerárquica, de manera que un elemento tiene un solo predecesor,
+pero varios sucesores.</p>
 </li>
 <li>
-<p>Si el elemento está en el conjunto, hallar la posición en la que se encuentra.</p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_búsqueda_lineal_secuencial">Búsqueda Lineal (secuencial)</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>Consiste en recorrer y examinar cada uno de los elementos de la lista hasta encontrar el o los elementos
-buscados, o hasta que se han mirado todos los elementos de la lista.</p>
-</div>
-<div class="paragraph">
-<p>Este es el método de búsqueda más lento, pero si nuestra información se encuentra completamente
-desordenada es el único método que nos podrá ayudar a encontrar el dato que buscamos. El siguiente
-algoritmo ilustra un esquema de implementación del algoritmo de búsqueda secuencial:</p>
-</div>
-<div class="listingblock">
-<div class="title">Búsqueda lineal</div>
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="kotlin">// Función genérica que busca un elemento
-fun &lt;T&gt; buscar(lista: IList&lt;T&gt;, elem: T): Int {
-    for (i in 0 until lista.size) {
-        if (lista[i] == elem) {
-            return i
-        }
-    }
-    return -1  // Afuera del for. No encontramos el elemento
-}</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Este es un algoritmo de complejidad \(O(n)\) en el peor de los casos. Ahora buscamos la manera
-de mejorar la eficiencia de la búsqueda, utilizando otros algoritmos de complejidad menor.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_búsqueda_binaria">Búsqueda binaria</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>Si los elementos sobre los que se realiza la búsqueda están ordenados, entonces podemos utilizar un
-algoritmo de búsqueda mucho más rápido que el secuencial, la <strong>búsqueda binaria</strong>. El algoritmo consiste en
-reducir paulatinamente el ámbito de búsqueda a la mitad de los elementos, basándose en comparar el
-elemento a buscar con el elemento que se encuentra en la mitad del intervalo y con base a esta
-comparación:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>Si el elemento buscado es menor que el elemento medio, entonces sabemos que el elemento está en la
-mitad inferior de la lista.</p>
-</li>
-<li>
-<p>Si es mayor es porque el elemento está en la mitad superior de la lista</p>
-</li>
-<li>
-<p>Si es igual se finaliza con éxito la búsqueda, ya que se ha encontrado el elemento.</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>Los prerrequisitos principales para la búsqueda binaria son:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>La lista debe estar ordenada en un orden específico de acuerdo con un criterio de comparación.</p>
-</li>
-<li>
-<p>Debe conocerse el tamaño de la lista.</p>
+<p>En la vida real podemos encontrar varias aplicaciones con estructura de tipo árbol:</p>
 </li>
 </ul>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="https://miro.medium.com/max/600/1*4poxx4vMDQfGEq3HeswJoA.gif" alt="1*4poxx4vMDQfGEq3HeswJoA">
+<img src="https://github.com/luiscobo/estructuradatos/raw/main/imagenes/arbol01.png" alt="Aplicaciones Árboles">
 </div>
-<div class="title">Figura 1. Comparación búsqueda lineal y binaria</div>
+<div class="title">Figure 1. Aplicaciones con árboles</div>
 </div>
 <div class="paragraph">
-<p>La búsqueda binaria consiste en dividir la lista por su elemento medio en dos sub-listas más pequeñas, y
-comparar el elemento buscado con el elemento del centro de la lista. Si coinciden, la búsqueda se
-termina. Si el elemento es menor, debe estar (si está) en la primera sublista, y si es mayor está en la
-segunda. Si al final de la búsqueda todavía no lo hemos encontrado, y la sublita a dividir está vacio,
-el elemento no se encuentra en la lista. La implementación sería:</p>
+<p>En Informática, los árboles constituyen una ed las estructuras de datos más utilizadas, con aplicaciones:</p>
 </div>
-<div class="listingblock">
-<div class="title">Búsqueda binaria</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Desde los árboles sintácticos utilizados para representación y/o interpretación de lenguajes de
+programación o de expresiones aritméticas.</p>
+</li>
+<li>
+<p>Pasando por los árboles de activación de procedimientos recursivos.</p>
+</li>
+<li>
+<p>Hasta la representación de datos que se desea mantener ordenados con un tiempo de acceso relativamente bajo.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>En general, se usarán árboles cuando se quiera representar información jerarquizadas. Por ejemplo, se usan
+árboles en los siguientes ámbitos:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Sistemas de archivos: estructura de directorios y subdirectorios en forma de árbol para organizar la
+información.</p>
+</li>
+<li>
+<p>Esquemas para el desarrollo de algoritmos, tales como: programación dinámica, enfoque divide y vencerás.</p>
+</li>
+<li>
+<p>Diagramas de clases</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_definición_y_conceptos_básicos_de_árboles_binarios">Definición y Conceptos Básicos de Árboles Binarios</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Un <strong>árbol binario</strong> es una estructura recursiva, compuesta por un elemento, denominado la <strong>raíz</strong>, y por dos
+árboles binarios asociados, denominados <strong>subárbol derecho</strong> y <strong>subárbol izquierdo</strong>. El hecho de definir la
+estructura de datos en términos de sí misma es lo que hace que se denomine <em>recursiva</em>. El formalismo gráfico
+escogido para representar un árbol aparece a continuación. En él, se hace explícito que los dos subárboles
+tienen la misma composición estructural del árbol completo. El caso más sencillo de árbol binario es un árbol
+<strong>vacío</strong>, el cual no tiene elementos ni subárboles asociados. El símbolo escogido para representarlo es
+\(\Delta\)</p>
+</div>
+<div class="imageblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="kotlin">fun busquedaBinaria(lista: IList&lt;Int&gt;, elem: Int): Int {
-    var ini = 0
-    var fin = lista.size - 1
-
-    while (ini &lt;= fin) {
-        var mitad = (ini + fin) / 2
-        if (lista[mitad] == elem) {
-            return mitad  // encontramos el elemento
-        }
-        if (lista[mitad] &gt; elem) {
-            fin = mitad - 1
-        }
-        else {
-            ini = mitad + 1
-        }
-    }
-    return -1  // No lo encontró
-}</code></pre>
+<img src="https://github.com/luiscobo/estructuradatos/raw/main/imagenes/fig41.png" alt="Árboles Binarios">
+</div>
+<div class="title">Figure 2. Formalismo para expresar un árbol binario</div>
+</div>
+<div class="paragraph">
+<p>Otro formalismo posible para representar árboles binarios, cuando se quieren hacer explícitos todos los
+componentes de la estructura, utiliza un nombre para cada uno de los elementos del árbol y líneas para las
+relaciones de composición, como se muestra en la figura siguiente.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://github.com/luiscobo/estructuradatos/raw/main/imagenes/fig42.png" alt="Formalismos">
+</div>
+</div>
+<div class="paragraph">
+<p>Un elemento \(e2\) es <strong>hijo</strong> de un elemento \(e1\), si
+\(e2\) es la raíz de uno de los subárboles asociados con \(e1\). En ese
+mismo caso, se dice que \(e1\) es el <strong>padre</strong> de \(e2\). Un elemento \(e2\) es
+<strong>hermano</strong> de un elemento \(e3\) si ambos tienen el mismo padre.</p>
+</div>
+<div class="paragraph">
+<p>Un elemento de un árbol binario es una <strong>hoja</strong> si sus dos subárboles asociados son vacíos. En la figura a
+continuación, los elementos <code>e4</code>, <code>e5</code>, <code>e6</code> y <code>e7</code> son hojas. El formalismo gráfico para expresar que un árbol
+está compuesto solamente por una hoja aparece en la figura a continuación. Todo elemento de un árbol que no es
+una hoja se denomina un elemento <strong>no terminal</strong>  o interior.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://github.com/luiscobo/estructuradatos/raw/main/imagenes/fig43.png" alt="Hoja">
+</div>
+<div class="title">Figure 3. Formalismo para un árbol compuesto por una hoja</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Ejemplo</div>
+<div class="paragraph">
+<p>Para el árbol de la siguiente figura:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://github.com/luiscobo/estructuradatos/raw/main/imagenes/figejem41.png" alt="Arbol Binario">
+</div>
+</div>
+<div class="paragraph">
+<p>Se tiene que:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>La raíz es <code>20</code> y los dos subárboles asociados son:</p>
+</li>
+</ul>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://github.com/luiscobo/estructuradatos/raw/main/imagenes/figejem42.png" alt="figejem42">
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Los elementos 5, 12, y 25 son hojas.</p>
+</li>
+<li>
+<p>Los nodos interiores son 20 y 10</p>
+</li>
+<li>
+<p>El padre de 5 es el 10. El padre de 25 es 20. Los hijos de 10 son 5 y 12.</p>
+</li>
+<li>
+<p>Los elementos 5 y 12 son hermanos.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>Un elemento <code>e1</code> es <strong>ancestro</strong> de un elemento <code>e2</code>, si existe un camino entre <code>e1</code> y <code>e2</code>. En ese mismo caso, se
+dice que <code>e2</code> es <strong>descendiente</strong> de <code>e1</code>. El <strong>nivel</strong> de un elemento dentro de un árbol binario se define como la
+longitud del camino que parte de la raíz y llega hasta él. De esta forma, el nivel de la raíz es 0 y el de
+cualquier elemento es uno más que el de su padre. El nivel determina qué tan lejos de la raíz se encuentra un
+elemento. El <strong>ancestro común</strong> más próximo de dos elementos <code>e1</code> y <code>e2</code> es un elemento <code>e3</code>, que cumple que es
+ancestro de ambos y se encuentra a mayor nivel que cualquier otro ancestro que compartan.</p>
+</div>
+<div class="paragraph">
+<p>La <strong>altura</strong> de un árbol se define como el número de niveles del árbol más 1. La altura de un árbol
+vacío se define como 0. Recursivamente se puede definir como la altura del subárbol más alto más 1.
+El <strong>peso</strong> de un árbol es el número de elementos que contiene. Recursivamente se
+puede definir como la suma de los pesos de sus subárboles más 1. De acuerdo con la definición, el peso de
+un árbol vacío es 0.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Ejemplo</div>
+<div class="paragraph">
+<p>Para el siguiente árbol:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://github.com/luiscobo/estructuradatos/raw/main/imagenes/figejem43.png" alt="figejem43">
+</div>
+</div>
+<div class="paragraph">
+<p>Se tiene que:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>La altura es 4.</p>
+</li>
+<li>
+<p>El peso es 7.</p>
+</li>
+<li>
+<p><code>e1</code> es ancestro de todos los elementos del árbol.</p>
+</li>
+<li>
+<p><code>e7</code> es descendiente de <code>e2</code>.</p>
+</li>
+<li>
+<p>El ancestro común más próximo de <code>e4</code> y <code>e7</code> es <code>e2</code>.</p>
+</li>
+<li>
+<p>El ancestro común más próximo de <code>e6</code> y <code>e1</code> es <code>e1</code>.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>Un árbol binario es <strong>completo</strong>, si todo elemento no terminal tiene asociados exactamente dos subárboles no
+vacíos. Eso equivale a decir que todo elemento de un árbol completo tiene los dos subárboles o no tiene
+ninguno. En la figura a continuación aparece un ejemplo.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://github.com/luiscobo/estructuradatos/raw/main/imagenes/fig44.png" alt="Árbol binario completo">
+</div>
+</div>
+<div class="paragraph">
+<p>Un árbol binario está <strong>lleno</strong> si es completo y, además, todas las hojas están en el mismo nivel. Un árbol binario
+está <strong>casi lleno</strong> si está lleno hasta el penúltimo nivel y todas las hojas del siguiente nivel están tan a la
+izquierda como es posible. De acuerdo con la definición dada anteriormente, un árbol lleno es un caso
+particular de un árbol casi lleno. Estos dos conceptos se ilustran en la figura siguiente.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://raw.githubusercontent.com/luiscobo/estructuradatos/main/imagenes/fig45.png" alt="Árboles llenos y casi llenos">
 </div>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_búsqueda_binaria_con_comparadores">Búsqueda binaria con comparadores</h2>
+<h2 id="_recorrido_de_árboles_binarios">Recorrido de Árboles Binarios</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Si queremos realizar una búsqueda binaria en una estructura de datos con objetos, pero utilizando
-un comparador para tener acceso a un criterio de comparación. En ese caso debemos reemplazar los
-operadores de comparación (<code>==</code> o <code>&gt;</code> o <code>&lt;</code>) por la respectiva utilización del método <code>compare</code>
-del comparador creado.</p>
+<p>La operación de <strong>recorrer</strong> un árbol binario se puede hacer de diversas maneras. El orden en el que se visitan
+los elementos puede variar, puesto que lo único que debe garantizar la operación es que pase exactamente
+una vez por cada uno de los elementos del árbol. Las cuatro maneras más comunes de hacer este recorrido
+se denominan: <strong>preorden</strong>, <strong>inorden</strong>, <strong>postorden</strong> y <strong>niveles</strong>, y se definen de la siguiente manera:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">preorden</dt>
+<dd>
+<p>visite la raíz, recorra en preorden el subárbol izquierdo y, finalmente, recorra en preorden el
+subárbol derecho.</p>
+</dd>
+<dt class="hdlist1">inorden</dt>
+<dd>
+<p>recorra en inorden el subárbol izquierdo, luego visite el elemento de la raíz y, por último, recorra
+en inorden el subárbol derecho.</p>
+</dd>
+<dt class="hdlist1">postorden</dt>
+<dd>
+<p>recorra el subárbol izquierdo y el subárbol derecho en postorden y, luego, visite el elemento
+de la raíz.</p>
+</dd>
+<dt class="hdlist1">niveles</dt>
+<dd>
+<p>visite la raíz del árbol, los elementos de nivel 1 de izquierda a derecha, seguidos por los
+elementos de nivel 2, y así sucesivamente hasta terminar de visitar todos los elementos.</p>
+</dd>
+</dl>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Ejemplo</div>
+<div class="paragraph">
+<p>Para el árbol que se muestra en la siguiente figura:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://github.com/luiscobo/estructuradatos/raw/main/imagenes/figejem411.png" alt="figejem411">
+</div>
 </div>
 <div class="paragraph">
-<p>En este ejemplo vamos a encontrar la posición en la que se encuentra un Triángulo en una lista de
-Triángulos, pero utilizaremos un comparador que utiliza como criterio de comparación primero el
-perímetro y luego el área del triángulo.</p>
+<p>Los recorridos principales son:</p>
 </div>
-<div class="admonitionblock warning">
+<div class="hdlist">
 <table>
 <tr>
-<td class="icon">
-<i class="fa icon-warning" title="Warning"></i>
+<td class="hdlist1">
+preorden
 </td>
-<td class="content">
-<div class="title">Importante</div>
-Siempre tenga en cuenta que la búsqueda binaria necesita que los objetos estén ordenados
-de acuerdo al mismo criterio de comparación que el de la búsqueda.
+<td class="hdlist2">
+<p><code>a - b - d - e - f - g - c - h</code></p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+inorden
+</td>
+<td class="hdlist2">
+<p><code>d - b - f - e - g - a - c - h</code></p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+postorden
+</td>
+<td class="hdlist2">
+<p><code>d - f - g - e - b - h - c - a</code></p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+niveles
+</td>
+<td class="hdlist2">
+<p><code>a - b - c - d - e - h - f - g</code></p>
 </td>
 </tr>
 </table>
 </div>
-<div class="listingblock">
-<div class="title">Búsqueda binaria con comparadores</div>
+</div>
+</div>
+<div class="paragraph">
+<p>En el siguiente video podemos encontrar un tutorial completo acerca de los esquemas para recorrer
+un árbol binario.</p>
+</div>
+<div class="videoblock">
+<div class="title">Recorrido de árboles binarios</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="kotlin">// Un triángulo tiene tres lados
-data class Triángulo(var lado1: Double,
-                     var lado2: Double,
-                     var lado3: Double) {
-    fun perimetro() = lado1 + lado2 + lado3
-    fun area(): Double {
-        // Usaremos la fórmula de Herón para encontrar el área
-        val s = perimetro()/2.0
-        return sqrt(s*(s-lado1)*(s-lado2)*(s-lado3))
-    }
-}
-// Búsqueda binaria. Buscar la posición del triángulo dado
-fun busqBinariaTriangulo(triangulos: IList&lt;Triángulo&gt;, tri: Triángulo): Int {
-    var ini = 0
-    var fin = triangulos.size - 1
-    // Este comparador tiene el criterio de comparación que usaremos para buscar a tri
-    var comp: Comparator&lt;Triángulo&gt; = compareBy(Triángulo::perimetro, Triángulo::area)
-
-    while (ini &lt;= fin) {
-        val mitad = (ini + fin) / 2
-        val t = triagulos[mitad]   // el triángulo en la mitad del intervalo
-        if (comp.compare(t, tri) == 0) { // Encontramos el triángulo
-            return mitad   // Retornamos la posición del triángulo
-        }
-        else if (comp.compare(t, tri) &gt; 0) {
-            // El triángulo tri debe estar en la mitad izquierda de la lista
-            fin = mitad - 1
-        }
-        else if (comp.compare(t, tri) &lt; 0) {
-            // El triángulo t (el de la mitad) es inferior al triángulo tri
-            // por lo tanto debemos buscar tri en la mitad derecha de la lista
-            ini = mitad + 1
-        }
-    }
-    return -1  // No encontró el triángulo tri
-}</code></pre>
+<iframe width="640" height="480" src="https://www.youtube.com/embed/95CgVIsOxLA?rel=0" frameborder="0" allowfullscreen></iframe>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_reconstrucción_de_un_árbol_a_partir_de_sus_recorridos">Reconstrucción de un Árbol a partir de sus Recorridos</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Si un árbol binario no tiene elementos repetidos, es posible reconstruirlo a partir de la información que se
+obtiene de dos de sus recorridos (inorden y postorden o inorden y preorden). El proceso de reconstrucción del
+árbol binario, a partir de la secuencia de los elementos que va visitando en sus recorridos, se ilustra en el
+siguiente video.</p>
+</div>
+<div class="videoblock">
+<div class="title">Construcción de Árboles binarios a partir de sus recorridos</div>
+<div class="content">
+<iframe width="640" height="480" src="https://www.youtube.com/embed/KY_6Xduq8jc?rel=0" frameborder="0" allowfullscreen></iframe>
 </div>
 </div>
 </div>
@@ -672,7 +813,7 @@ fun busqBinariaTriangulo(triangulos: IList&lt;Triángulo&gt;, tri: Triángulo): 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-04-14 16:49:24 -0500
+Last updated 2021-04-14 16:13:53 -0500
 </div>
 </div>
 <script type="text/x-mathjax-config">
