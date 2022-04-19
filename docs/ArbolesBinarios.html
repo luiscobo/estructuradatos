@@ -461,7 +461,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_proceso_de_eliminación">Proceso de Eliminación</a></li>
 </ul>
 </li>
-<li><a href="#_árboles_binarios_balanceados">Árboles Binarios Balanceados</a></li>
+<li><a href="#_árboles_binarios_balanceados">Árboles Binarios Balanceados</a>
+<ul class="sectlevel2">
+<li><a href="#_representación_interna">Representación interna</a></li>
+<li><a href="#_algoritmo_de_inserción">Algoritmo de inserción</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -1179,12 +1184,131 @@ perfectamente balanceado.</p>
 recomienda consultar la bibliografía para ver las rutinas que implementan las modificadoras de un árbol
 perfectamente balanceado.</p>
 </div>
+<div class="sect2">
+<h3 id="_representación_interna">Representación interna</h3>
+<div class="paragraph">
+<p>La implementación de las operaciones de los árboles AVL se ilustra utilizando el esquema de representación de
+árboles binarios ordenados, extendido con un campo en cada nodo (<code>balan</code>) para incluir un indicador
+del estado de balanceo, que corresponde a la diferencia de altura de sus subárboles ( izq - der ). Este nuevo
+campo es utilizado por las diversas operaciones para dirigir la estrategia de rebalanceo de un árbol. Las
+convenciones gráficas son las siguientes:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>balan = 0</code> (\(\leftrightarrow\)): ambos subárboles tienen la misma altura.</p>
+</li>
+<li>
+<p><code>balan = -1</code> (\(\rightarrow\)): el subárbol derecho excede en 1 la altura del izquierdo</p>
+</li>
+<li>
+<p><code>balan = 1</code> (\(\leftarrow\)): el subárbol izquierdo excede en 1 la altura del derecho</p>
+</li>
+</ul>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Ejemplo</div>
+<div class="paragraph">
+<p>El siguiente árbol AVL tendría en sus estructuras de datos los factores de balance que se muestran en la
+figura:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://github.com/luiscobo/estructuradatos/raw/main/imagenes/fig81.png" alt="AVL">
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_algoritmo_de_inserción">Algoritmo de inserción</h3>
+<div class="paragraph">
+<p>El proceso para insertar un nuevo elemento en un árbol AVL se divide en dos etapas: primero, se agrega el
+elemento como en un árbol binario ordenado cualquiera y, luego, se restaura el balanceo del árbol mediante
+ajustes de la estructura que se denominan <strong>rotaciones</strong>. Los casos de desbalanceo de un árbol y las
+rotaciones respectivas para balancearlo se presentan a continuación, puesto que son el fundamento de la
+estructura del algoritmo de inserción.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Caso 1</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Caso 1</dt>
+<dd>
+<p>No se dañó el balanceo al insertar el elemento</p>
+</dd>
+<dt class="hdlist1">Proceso</dt>
+<dd>
+<p>No se debe rebalancear. Sólo se debe actualizar el indicador de balanceo en los elementos
+afectados</p>
+</dd>
+<dt class="hdlist1">Ejemplo</dt>
+<dd>
+<p>Resultado de insertar el elemento 17</p>
+</dd>
+</dl>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="https://github.com/luiscobo/estructuradatos/raw/main/imagenes/fig82.png" alt="fig82">
+</div>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Caso 2</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Caso 2</dt>
+<dd>
+<p>El árbol inicial es de la forma mostrada en la figura, y se inserta el nuevo elemento en el subárbol
+derecho.</p>
+</dd>
+</dl>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="https://github.com/luiscobo/estructuradatos/raw/main/imagenes/fig83.png" alt="fig83">
+</div>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Prceso</dt>
+<dd>
+<p>Rebalancear el árbol con una rotación a la izquierda, de la siguiente manera:</p>
+</dd>
+</dl>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="https://github.com/luiscobo/estructuradatos/raw/main/imagenes/fig84.png" alt="fig84">
+</div>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Ejemplo</dt>
+<dd>
+<p>Resultado de insertar el elemento 17</p>
+</dd>
+</dl>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="https://github.com/luiscobo/estructuradatos/raw/main/imagenes/fig85.png" alt="fig85">
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2022-04-14 13:16:00 -0500
+Last updated 2022-04-19 08:55:12 -0500
 </div>
 </div>
 <script type="text/x-mathjax-config">
